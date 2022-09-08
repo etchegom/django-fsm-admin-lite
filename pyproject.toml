@@ -1,0 +1,48 @@
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.poetry]
+name = "django-fsm-admin-lite"
+version = "0.1.0"
+description = "Mixin class and template to integrate django-fsm state transitions into the Django Admin"
+authors = ["Etchegoyen Matthieu <etchegom@gmail.com>"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django-fsm = "^2.8.1"
+Django = "^4.1.1"
+
+[tool.poetry.dev-dependencies]
+twine = "^4.0.1"
+black = "^22.8.0"
+isort = "^5.10.1"
+
+[tool.black]
+line-length = 100
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.venv
+  | build
+  | dist
+)/
+'''
+skip-magic-trailing-comma = "false"
+
+[tool.isort]
+default_section = "FIRSTPARTY"
+float_to_top = true
+force_grid_wrap = 0
+include_trailing_comma = true
+known_third_party = [
+    "django",
+    "django_fsm",
+]
+line_length = 100
+multi_line_output = 3
+sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+skip_glob = [".venv",]
+use_parentheses = true

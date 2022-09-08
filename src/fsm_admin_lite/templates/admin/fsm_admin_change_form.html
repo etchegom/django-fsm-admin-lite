@@ -1,0 +1,13 @@
+{% extends 'admin/change_form.html' %}
+
+{% block submit_buttons_bottom %}
+  {% if available_transitions %}
+    <div class="submit-row">
+      Transit to status:
+      {% for transition in available_transitions %}
+        <input type="submit" value="{{ transition.name }}" name="_transit_to">
+      {% endfor %}
+    </div>
+  {% endif %}
+  {{ block.super }}
+{% endblock %}
