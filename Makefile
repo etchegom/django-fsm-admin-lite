@@ -5,24 +5,35 @@ VERSION := $(shell python setup.py --version)
 version:
 	@echo "$(VERSION)"
 
+do-in-tests = @cd tests && poetry run
+
 #
 # Dev
 #
 install:
-	@poetry install
+	@poetry install --no-interaction --no-root
 	@poetry run python setup.py develop
 
 create_super_user:
-	@cd tests && poetry run python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser(username='admin', password='password')"
+	$(do-in-tests) python manage.py shell -c "from django.contrib.auth import get_user_model; get_user_model().objects.create_superuser(username='admin', password='password')"
+
+migrate:
+	$(do-in-tests) python manage.py makemigrations
+	$(do-in-tests) python manage.py migrate
 
 runserver:
-	@cd tests && poetry run python manage.py migrate && poetry run python manage.py runserver
+	$(do-in-tests) python manage.py runserver
 
 test:
-	@pytest
+	$(do-in-tests) pytest --ds=settings
 
 pre-commit:
 	@pre-commit run --all-files
+
+clean-db:
+	@rm -f tests/db.sqlite3
+
+reset: clean-db install migrate create_super_user runserver
 
 #
 # Release
@@ -40,4 +51,5 @@ dist: clean
 	@twine check dist/django-fsm-admin-lite-${VERSION}.tar.gz
 
 # release: dist
+# 	@twine upload -r testpypi dist/django-fsm-admin-lite-$(VERSION).tar.gz
 # 	@twine upload dist/django-fsm-admin-lite-$(VERSION).tar.gz

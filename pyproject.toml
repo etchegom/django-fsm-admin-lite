@@ -10,14 +10,18 @@ authors = ["Etchegoyen Matthieu <etchegom@gmail.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8"
 django-fsm = "^2.8.1"
-Django = "^4.1.1"
+django = "^3.2 || ^4.0 || ^4.1 || ^4.2"
 
 [tool.poetry.dev-dependencies]
 twine = "^4.0.1"
 black = "^22.8.0"
 isort = "^5.10.1"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.2.0"
+pytest-django = "^4.5.2"
 
 [tool.black]
 line-length = 100
@@ -46,3 +50,16 @@ multi_line_output = 3
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 skip_glob = [".venv",]
 use_parentheses = true
+
+
+[tool.mypy]
+python_version = "3.10"
+implicit_reexport = false
+show_error_codes = true
+check_untyped_defs = true
+disallow_untyped_calls = true
+disallow_incomplete_defs = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unreachable = true
+warn_unused_ignores = true
