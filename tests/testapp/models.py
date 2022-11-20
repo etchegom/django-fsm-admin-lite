@@ -2,26 +2,38 @@ from django.db import models
 from django_fsm import FSMField, transition
 
 
-class BlogPostStatus(models.TextChoices):
-    NEW = "new", "New"
-    MODERATED = "moderated", "Moderated"
+class BlogPostState(models.TextChoices):
+    CREATED = "created", "Created"
+    REVIEWED = "reviewed", "Reviewed"
     PUBLISHED = "published", "Published"
     HIDDEN = "hidden", "Hidden"
+
+
+# class DummyState(models.TextChoices):
+#     STEP_1 = "step1", "Step one"
+#     STEP_2 = "step2", "Step two"
+#     STEP_3 = "step3", "Step three"
 
 
 class BlogPost(models.Model):
     title = models.CharField(max_length=200, null=True, blank=True)
 
     state = FSMField(
-        choices=BlogPostStatus.choices,
-        default=BlogPostStatus.NEW,
-        protected=False,
+        choices=BlogPostState.choices,
+        default=BlogPostState.CREATED,
+        protected=True,
     )
+
+    # dummy_state = FSMField(
+    #     choices=DummyState.choices,
+    #     default=DummyState.STEP_1,
+    #     protected=False,
+    # )
 
     @transition(
         field=state,
-        source=[BlogPostStatus.NEW],
-        target=BlogPostStatus.MODERATED,
+        source=[BlogPostState.CREATED],
+        target=BlogPostState.REVIEWED,
     )
     def moderate(self):
         pass
@@ -29,10 +41,10 @@ class BlogPost(models.Model):
     @transition(
         field=state,
         source=[
-            BlogPostStatus.MODERATED,
-            BlogPostStatus.HIDDEN,
+            BlogPostState.REVIEWED,
+            BlogPostState.HIDDEN,
         ],
-        target=BlogPostStatus.PUBLISHED,
+        target=BlogPostState.PUBLISHED,
     )
     def publish(self):
         pass
@@ -40,10 +52,10 @@ class BlogPost(models.Model):
     @transition(
         field=state,
         source=[
-            BlogPostStatus.MODERATED,
-            BlogPostStatus.PUBLISHED,
+            BlogPostState.REVIEWED,
+            BlogPostState.PUBLISHED,
         ],
-        target=BlogPostStatus.HIDDEN,
+        target=BlogPostState.HIDDEN,
     )
     def hide(self):
         pass

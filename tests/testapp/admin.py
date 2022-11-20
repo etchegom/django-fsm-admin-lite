@@ -7,4 +7,8 @@ from .models import BlogPost
 
 @admin.register(BlogPost)
 class BlogPostAdmin(FSMAdminMixin, admin.ModelAdmin):
-    pass
+    list_display = ("id", "title", "state")
+
+    fsm_fields = [
+        "state",
+    ]
