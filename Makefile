@@ -33,7 +33,7 @@ pre-commit:
 clean-db:
 	@rm -f tests/db.sqlite3
 
-reset: clean-db install migrate create_super_user runserver
+example: clean-db install migrate create_super_user runserver
 
 #
 # Release
