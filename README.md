@@ -10,6 +10,7 @@ Alternative of [django-fsm-admin](https://github.com/gadventures/django-fsm-admi
 Features:
 - add transitions allowed behavio in model admin pages
 - mark FSM protected fields as read only
+
 Limitations:
 - transition parameters are not handled
 - all available transitions are displayed
