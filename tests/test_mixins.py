@@ -44,7 +44,7 @@ class ModelAdminTests(TestCase):
         assert self.model_admin.get_readonly_fields(request=request) == ("state",)
 
     def test_get_block_label(self):
-        assert self.model_admin.get_block_label(fsm_field_name="MyField") == "Transition (MyField)"
+        assert self.model_admin.get_block_label(fsm_field_name="MyField") == "Transition - MyField"
 
     def test_get_object_transitions(self):
         object_transitions = self.model_admin.get_object_transitions(
@@ -54,7 +54,7 @@ class ModelAdminTests(TestCase):
 
         first_object_transition = object_transitions[0]
         assert first_object_transition.fsm_field == "state"
-        assert first_object_transition.block_label == "Transition (state)"
+        assert first_object_transition.block_label == "Transition - state"
         assert sorted([t.name for t in first_object_transition.available_transitions]) == [
             "hide",
             "publish",
