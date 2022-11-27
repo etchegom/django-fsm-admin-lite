@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [tool.poetry]
 name = "django-fsm-admin-lite"
 version = "0.1.0"
-description = "Mixin class and template to integrate django-fsm state transitions into the Django Admin"
+description = "Integrate django-fsm state transitions into Django Admin."
 authors = ["Etchegoyen Matthieu <etchegom@gmail.com>"]
 license = "MIT"
 
