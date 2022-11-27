@@ -42,7 +42,7 @@ class FSMAdminMixin(BaseModelAdmin):
 
     @staticmethod
     def get_block_label(fsm_field_name: str) -> str:
-        return f"Transition ({fsm_field_name})"
+        return f"Transition - {fsm_field_name}"
 
     def get_object_transitions(self, request: HttpRequest, obj: Any) -> list[ObjectTransitions]:
         object_transitions = []
