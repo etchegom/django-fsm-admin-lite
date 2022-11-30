@@ -1,12 +1,14 @@
 from typing import Any
 from unittest.mock import patch
 
+from django.contrib import messages
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
+from django.test.client import RequestFactory
 from django_fsm import FSMField
 
 from testapp.admin import BlogPostAdmin
-from testapp.models import BlogPost
+from testapp.models import BlogPost, BlogPostState
 
 
 class MockRequest:
@@ -23,7 +25,7 @@ request = MockRequest()
 request.user = MockSuperUser()
 
 
-class ModelAdminTests(TestCase):
+class ModelAdminTest(TestCase):
     @classmethod
     def setUpTestData(cls):
         blog_post = BlogPost.objects.create(title="Article name")
@@ -76,7 +78,9 @@ class ModelAdminTests(TestCase):
             request=request,
             form_url="/test",
             object_id=self.blog_post.pk,
-            extra_context={"existing_context": "existing context"},
+            extra_context={
+                "existing_context": "existing context",
+            },
         )
 
         mock_get_object_transitions.assert_called_once_with(
@@ -94,6 +98,60 @@ class ModelAdminTests(TestCase):
             },
         )
 
-    def test_response_change(self):
-        # TODO: add unit tests
+
+@patch("django.contrib.admin.options.ModelAdmin.message_user")
+class ResponseChangeTest(TestCase):
+    def setUp(self):
+        self.model_admin = BlogPostAdmin(BlogPost, AdminSite())
+
+    def test_unknown_transition(self, mock_message_user):
+        request = RequestFactory().post(
+            path="/",
+            data={"_transition_to": "unkown_transition"},
+        )
+
+        blog_post = BlogPost.objects.create(title="Article name")
+        assert blog_post.state == BlogPostState.CREATED
+
+        self.model_admin.response_change(
+            request=request,
+            obj=blog_post,
+        )
+
+        mock_message_user.assert_called_once_with(
+            request=request,
+            message="'unkown_transition' is not a valid transition",
+            level=messages.ERROR,
+        )
+
+        updated_blog_post = BlogPost.objects.get(pk=blog_post.pk)
+        assert updated_blog_post.state == BlogPostState.CREATED
+
+    def test_transition_applied(self, mock_message_user):
+        request = RequestFactory().post(
+            path="/",
+            data={"_transition_to": "moderate"},
+        )
+
+        blog_post = BlogPost.objects.create(title="Article name")
+        assert blog_post.state == BlogPostState.CREATED
+
+        self.model_admin.response_change(
+            request=request,
+            obj=blog_post,
+        )
+
+        mock_message_user.assert_called_once_with(
+            request=request,
+            message="FSM transition 'moderate' has been applied.",
+            level=messages.INFO,
+        )
+
+        updated_blog_post = BlogPost.objects.get(pk=blog_post.pk)
+        assert updated_blog_post.state == BlogPostState.REVIEWED
+
+    def test_transition_not_allowed_exception(self, mock_message_user):
+        pass
+
+    def test_concurent_transition_exception(self, mock_message_user):
         pass

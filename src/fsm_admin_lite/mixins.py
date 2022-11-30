@@ -106,21 +106,31 @@ class FSMAdminMixin(BaseModelAdmin):
                     message=f"'{transition_name}' is not a valid transition",
                     level=messages.ERROR,
                 )
-                return self.get_response(request=request, obj=obj)
+                return self.get_response(
+                    request=request,
+                    obj=obj,
+                )
 
             try:
                 transition_func()
-            except (TransitionNotAllowed, ConcurrentTransition) as err:
+            except TransitionNotAllowed:
                 self.message_user(
                     request=request,
-                    message=str(err),
+                    message=f"FSM transition '{transition_name}' is not allowed.",
+                    level=messages.ERROR,
+                )
+            except ConcurrentTransition as err:
+                self.message_user(
+                    request=request,
+                    message=f"FSM transition '{transition_name}' failure: {str(err)}",
                     level=messages.ERROR,
                 )
             else:
                 obj.save()
                 self.message_user(
                     request=request,
-                    message=f"FSM field has been changed to '{obj.state}'",
+                    message=f"FSM transition '{transition_name}' has been applied.",
+                    level=messages.INFO,
                 )
 
             return self.get_response(
