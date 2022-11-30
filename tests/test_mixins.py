@@ -51,12 +51,12 @@ class ModelAdminTest(TestCase):
         )
 
     def test_get_fsm_object_transitions(self):
-        object_transitions = self.model_admin.get_fsm_object_transitions(
+        fsm_object_transitions = self.model_admin.get_fsm_object_transitions(
             request=request, obj=self.blog_post
         )
-        assert len(object_transitions) == 1
+        assert len(fsm_object_transitions) == 1
 
-        first_object_transition = object_transitions[0]
+        first_object_transition = fsm_object_transitions[0]
         assert first_object_transition.fsm_field == "state"
         assert first_object_transition.block_label == "Transition (state)"
         assert sorted([t.name for t in first_object_transition.available_transitions]) == [
@@ -96,7 +96,7 @@ class ModelAdminTest(TestCase):
             form_url="/test",
             extra_context={
                 "existing_context": "existing context",
-                "object_transitions": "object transitions",
+                "fsm_object_transitions": "object transitions",
             },
         )
 

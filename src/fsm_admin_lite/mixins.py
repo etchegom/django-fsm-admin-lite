@@ -12,7 +12,7 @@ from django_fsm import ConcurrentTransition, FSMField, Transition, TransitionNot
 
 
 @dataclass
-class FSMObjectTransitions:
+class FSMObjectTransition:
     fsm_field: str
     block_label: str
     available_transitions: list[Transition]
@@ -46,21 +46,21 @@ class FSMAdminMixin(BaseModelAdmin):
 
     def get_fsm_object_transitions(
         self, request: HttpRequest, obj: Any
-    ) -> list[FSMObjectTransitions]:
-        object_transitions = []
+    ) -> list[FSMObjectTransition]:
+        fsm_object_transitions = []
 
         for field_name in self.fsm_fields:
             func = getattr(obj, f"get_available_user_{field_name}_transitions")
             if func:
-                object_transitions.append(
-                    FSMObjectTransitions(
+                fsm_object_transitions.append(
+                    FSMObjectTransition(
                         fsm_field=field_name,
                         block_label=self.get_fsm_block_label(fsm_field_name=field_name),
                         available_transitions=list(func(request.user)),
                     )
                 )
 
-        return object_transitions
+        return fsm_object_transitions
 
     def change_view(
         self,
@@ -71,7 +71,7 @@ class FSMAdminMixin(BaseModelAdmin):
     ) -> HttpResponse:
 
         _context = extra_context or {}
-        _context["object_transitions"] = self.get_fsm_object_transitions(
+        _context["fsm_object_transitions"] = self.get_fsm_object_transitions(
             request=request,
             obj=self.get_object(request=request, object_id=object_id),
         )
