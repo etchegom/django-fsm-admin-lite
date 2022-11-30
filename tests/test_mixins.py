@@ -45,11 +45,13 @@ class ModelAdminTest(TestCase):
     def test_readonly_fields(self):
         assert self.model_admin.get_readonly_fields(request=request) == ("state",)
 
-    def test_get_block_label(self):
-        assert self.model_admin.get_block_label(fsm_field_name="MyField") == "Transition (MyField)"
+    def test_get_fsm_block_label(self):
+        assert (
+            self.model_admin.get_fsm_block_label(fsm_field_name="MyField") == "Transition (MyField)"
+        )
 
-    def test_get_object_transitions(self):
-        object_transitions = self.model_admin.get_object_transitions(
+    def test_get_fsm_object_transitions(self):
+        object_transitions = self.model_admin.get_fsm_object_transitions(
             request=request, obj=self.blog_post
         )
         assert len(object_transitions) == 1
@@ -62,17 +64,17 @@ class ModelAdminTest(TestCase):
             "publish",
         ]
 
-    def test_get_redirect_url(self):
-        assert self.model_admin.get_redirect_url(request=request, obj=None) == "/path"
+    def test_get_fsm_redirect_url(self):
+        assert self.model_admin.get_fsm_redirect_url(request=request, obj=None) == "/path"
 
     @patch("django.contrib.admin.ModelAdmin.change_view")
-    @patch("fsm_admin_lite.mixins.FSMAdminMixin.get_object_transitions")
+    @patch("fsm_admin_lite.mixins.FSMAdminMixin.get_fsm_object_transitions")
     def test_change_view_context(
         self,
-        mock_get_object_transitions,
+        mock_get_fsm_object_transitions,
         mock_super_change_view,
     ):
-        mock_get_object_transitions.return_value = "object transitions"
+        mock_get_fsm_object_transitions.return_value = "object transitions"
 
         self.model_admin.change_view(
             request=request,
@@ -83,7 +85,7 @@ class ModelAdminTest(TestCase):
             },
         )
 
-        mock_get_object_transitions.assert_called_once_with(
+        mock_get_fsm_object_transitions.assert_called_once_with(
             request=request,
             obj=self.blog_post,
         )

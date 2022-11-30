@@ -12,7 +12,7 @@ from django_fsm import ConcurrentTransition, FSMField, Transition, TransitionNot
 
 
 @dataclass
-class ObjectTransitions:
+class FSMObjectTransitions:
     fsm_field: str
     block_label: str
     available_transitions: list[Transition]
@@ -41,19 +41,21 @@ class FSMAdminMixin(BaseModelAdmin):
         return read_only_fields
 
     @staticmethod
-    def get_block_label(fsm_field_name: str) -> str:
+    def get_fsm_block_label(fsm_field_name: str) -> str:
         return f"Transition ({fsm_field_name})"
 
-    def get_object_transitions(self, request: HttpRequest, obj: Any) -> list[ObjectTransitions]:
+    def get_fsm_object_transitions(
+        self, request: HttpRequest, obj: Any
+    ) -> list[FSMObjectTransitions]:
         object_transitions = []
 
         for field_name in self.fsm_fields:
             func = getattr(obj, f"get_available_user_{field_name}_transitions")
             if func:
                 object_transitions.append(
-                    ObjectTransitions(
+                    FSMObjectTransitions(
                         fsm_field=field_name,
-                        block_label=self.get_block_label(fsm_field_name=field_name),
+                        block_label=self.get_fsm_block_label(fsm_field_name=field_name),
                         available_transitions=list(func(request.user)),
                     )
                 )
@@ -69,7 +71,7 @@ class FSMAdminMixin(BaseModelAdmin):
     ) -> HttpResponse:
 
         _context = extra_context or {}
-        _context["object_transitions"] = self.get_object_transitions(
+        _context["object_transitions"] = self.get_fsm_object_transitions(
             request=request,
             obj=self.get_object(request=request, object_id=object_id),
         )
@@ -81,11 +83,11 @@ class FSMAdminMixin(BaseModelAdmin):
             extra_context=_context,
         )
 
-    def get_redirect_url(self, request: HttpRequest, obj: Any) -> str:
+    def get_fsm_redirect_url(self, request: HttpRequest, obj: Any) -> str:
         return request.path
 
-    def get_response(self, request: HttpRequest, obj: Any) -> HttpResponse:
-        redirect_url = self.get_redirect_url(request=request, obj=obj)
+    def get_fsm_response(self, request: HttpRequest, obj: Any) -> HttpResponse:
+        redirect_url = self.get_fsm_redirect_url(request=request, obj=obj)
         redirect_url = add_preserved_filters(
             context={
                 "preserved_filters": self.get_preserved_filters(request),
@@ -106,7 +108,7 @@ class FSMAdminMixin(BaseModelAdmin):
                     message=f"'{transition_name}' is not a valid transition",
                     level=messages.ERROR,
                 )
-                return self.get_response(
+                return self.get_fsm_response(
                     request=request,
                     obj=obj,
                 )
@@ -133,7 +135,7 @@ class FSMAdminMixin(BaseModelAdmin):
                     level=messages.INFO,
                 )
 
-            return self.get_response(
+            return self.get_fsm_response(
                 request=request,
                 obj=obj,
             )
