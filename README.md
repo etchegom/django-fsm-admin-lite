@@ -5,15 +5,14 @@
 
 Integrate [django-fsm](https://github.com/viewflow/django-fsm) state transitions into Django Admin.
 
-Alternative of [django-fsm-admin](https://github.com/gadventures/django-fsm-admin), with much lighter version of frontend part.
+Alternative of [django-fsm-admin](https://github.com/gadventures/django-fsm-admin), with a lighter version of the frontend part.
 
 Features:
-- add transitions allowed behavior in model admin pages
+- display available transitions in model admin so that user can apply them
 - mark FSM protected fields as read only
 
 Limitations:
-- transition parameters are not handled
-- all available transitions are displayed only
+- transition methods parameters are not handled
 
 ---
 
@@ -24,7 +23,7 @@ pip install django-fsm-admin-lite
 ```
 Or, for the latest git version
 ```
-pip install git@github.com:etchegom/django-fsm-admin-lite.git#egg=django-fsm-admin-lite
+python -m pip install 'django-fsm-admin-lite @ git+https://github.com/etchegom/django-fsm-admin-lite.git'
 ```
 
 ---
