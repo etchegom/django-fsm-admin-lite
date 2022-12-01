@@ -122,7 +122,7 @@ class ResponseChangeTest(TestCase):
 
         mock_message_user.assert_called_once_with(
             request=request,
-            message="'unkown_transition' is not a valid transition",
+            message="FSM transition 'unkown_transition' is not a valid.",
             level=messages.ERROR,
         )
 

@@ -20,7 +20,12 @@ class FSMObjectTransition:
 
 class FSMAdminMixin(BaseModelAdmin):
     change_form_template: str = "admin/fsm_admin_change_form.html"
+
     fsm_fields: list[str] = []
+    fsm_transition_success_msg: str = "FSM transition '{transition_name}' has been applied."
+    fsm_transition_error_msg: str = "FSM transition '{transition_name}' failure: {error}."
+    fsm_transition_not_allowed_msg = "FSM transition '{transition_name}' is not allowed."
+    fsm_transition_not_valid_msg = "FSM transition '{transition_name}' is not a valid."
 
     def get_fsm_field_instance(self, fsm_field_name: str) -> FSMField | None:
         try:
@@ -105,7 +110,9 @@ class FSMAdminMixin(BaseModelAdmin):
             except AttributeError:
                 self.message_user(
                     request=request,
-                    message=f"'{transition_name}' is not a valid transition",
+                    message=self.fsm_transition_not_valid_msg.format(
+                        transition_name=transition_name,
+                    ),
                     level=messages.ERROR,
                 )
                 return self.get_fsm_response(
@@ -118,20 +125,26 @@ class FSMAdminMixin(BaseModelAdmin):
             except TransitionNotAllowed:
                 self.message_user(
                     request=request,
-                    message=f"FSM transition '{transition_name}' is not allowed.",
+                    message=self.fsm_transition_not_allowed_msg.format(
+                        transition_name=transition_name,
+                    ),
                     level=messages.ERROR,
                 )
             except ConcurrentTransition as err:
                 self.message_user(
                     request=request,
-                    message=f"FSM transition '{transition_name}' failure: {str(err)}",
+                    message=self.fsm_transition_error_msg.format(
+                        transition_name=transition_name, error=str(err)
+                    ),
                     level=messages.ERROR,
                 )
             else:
                 obj.save()
                 self.message_user(
                     request=request,
-                    message=f"FSM transition '{transition_name}' has been applied.",
+                    message=self.fsm_transition_success_msg.format(
+                        transition_name=transition_name,
+                    ),
                     level=messages.INFO,
                 )
 
