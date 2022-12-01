@@ -54,7 +54,7 @@ class FSMAdminMixin(BaseModelAdmin):
     ) -> list[FSMObjectTransition]:
         fsm_object_transitions = []
 
-        for field_name in self.fsm_fields:
+        for field_name in sorted(self.fsm_fields):
             func = getattr(obj, f"get_available_user_{field_name}_transitions")
             if func:
                 fsm_object_transitions.append(
