@@ -1,13 +1,39 @@
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "django-fsm-admin-lite"
 version = "0.1.0"
-description = "Integrate django-fsm state transitions into Django Admin"
-authors = ["Etchegoyen Matthieu <etchegom@gmail.com>"]
+description = "Integrate django-fsm state transitions into Django Admin."
+authors = ["Matthieu Etchegoyen <etchegom@gmail.com>"]
+maintainers = ["Matthieu Etchegoyen <etchegom@gmail.com>"]
 license = "MIT"
+readme = "README.md"
+homepage = "https://github.com/etchegom/django-fsm-admin-lite"
+repository = "https://github.com/etchegom/django-fsm-admin-lite"
+documentation = "https://github.com/etchegom/django-fsm-admin-lite"
+keywords = ["django", "fsm"]
+classifiers = [
+    "Environment :: Web Environment",
+    "Framework :: Django",
+    "Framework :: Django :: 3.2",
+    "Framework :: Django :: 4",
+    "Framework :: Django :: 4.0",
+    "Framework :: Django :: 4.1",
+    "Natural Language :: English",
+    "License :: OSI Approved :: MIT License",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+packages = [
+  { include = "fsm_admin_lite", from = "src" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -15,7 +41,6 @@ django-fsm = "^2.8.1"
 django = "^3.2 || ^4.0 || ^4.1 || ^4.2"
 
 [tool.poetry.dev-dependencies]
-twine = "^4.0.1"
 black = "^22.8.0"
 isort = "^5.10.1"
 
@@ -50,7 +75,6 @@ multi_line_output = 3
 sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
 skip_glob = [".venv",]
 use_parentheses = true
-
 
 [tool.mypy]
 python_version = "3.10"

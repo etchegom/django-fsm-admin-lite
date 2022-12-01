@@ -32,10 +32,10 @@ jobs:
 
     steps:
       - name: Check out the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -52,7 +52,7 @@ jobs:
           poetry install --no-interaction --no-root
           source .venv/bin/activate
           python -m pip install "Django~=${{ matrix.django-version }}"
-          python setup.py develop
+          poetry install --no-interaction --only-root
 
       - name: Run python tests
         run: |
