@@ -58,10 +58,5 @@ Then go to [http://127.0.0.1:8000/admin](http://127.0.0.1:8000/admin), login wit
 ---
 
 ## TODO
-
-- complete unit tests
-- update README file
-- example with 2 FSM fields
-- push first release to pypi repo
-- improve templates
-- show all transitions (not available are disabled but visible)
+- improve the default template files
+- display all the transitions (not available transition should be represented as disabled buttons)
