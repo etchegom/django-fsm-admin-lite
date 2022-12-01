@@ -54,15 +54,20 @@ class ModelAdminTest(TestCase):
         fsm_object_transitions = self.model_admin.get_fsm_object_transitions(
             request=request, obj=self.blog_post
         )
-        assert len(fsm_object_transitions) == 1
 
-        first_object_transition = fsm_object_transitions[0]
-        assert first_object_transition.fsm_field == "state"
-        assert first_object_transition.block_label == "Transition (state)"
-        assert sorted([t.name for t in first_object_transition.available_transitions]) == [
+        assert len(fsm_object_transitions) == 2
+        state_transition, step_transition = fsm_object_transitions
+
+        assert state_transition.fsm_field == "state"
+        assert state_transition.block_label == "Transition (state)"
+        assert sorted([t.name for t in state_transition.available_transitions]) == [
             "hide",
             "publish",
         ]
+
+        assert step_transition.fsm_field == "step"
+        assert step_transition.block_label == "Transition (step)"
+        assert sorted([t.name for t in step_transition.available_transitions]) == ["step_two"]
 
     def test_get_fsm_redirect_url(self):
         assert self.model_admin.get_fsm_redirect_url(request=request, obj=None) == "/path"
@@ -145,7 +150,7 @@ class ResponseChangeTest(TestCase):
 
         mock_message_user.assert_called_once_with(
             request=request,
-            message="FSM transition 'moderate' has been applied.",
+            message="FSM transition 'moderate' succeeded.",
             level=messages.INFO,
         )
 
@@ -195,7 +200,7 @@ class ResponseChangeTest(TestCase):
 
         mock_message_user.assert_called_once_with(
             request=request,
-            message="FSM transition 'moderate' failure: error message.",
+            message="FSM transition 'moderate' failed: error message.",
             level=messages.ERROR,
         )
 

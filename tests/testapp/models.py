@@ -9,10 +9,10 @@ class BlogPostState(models.TextChoices):
     HIDDEN = "hidden", "Hidden"
 
 
-# class DummyState(models.TextChoices):
-#     STEP_1 = "step1", "Step one"
-#     STEP_2 = "step2", "Step two"
-#     STEP_3 = "step3", "Step three"
+class BlogPostStep(models.TextChoices):
+    STEP_1 = "step1", "Step one"
+    STEP_2 = "step2", "Step two"
+    STEP_3 = "step3", "Step three"
 
 
 class BlogPost(models.Model):
@@ -24,11 +24,13 @@ class BlogPost(models.Model):
         protected=True,
     )
 
-    # dummy_state = FSMField(
-    #     choices=DummyState.choices,
-    #     default=DummyState.STEP_1,
-    #     protected=False,
-    # )
+    step = FSMField(
+        choices=BlogPostStep.choices,
+        default=BlogPostStep.STEP_1,
+        protected=False,
+    )
+
+    # state transitions
 
     @transition(
         field=state,
@@ -58,4 +60,33 @@ class BlogPost(models.Model):
         target=BlogPostState.HIDDEN,
     )
     def hide(self):
+        pass
+
+    # step transitions
+
+    @transition(
+        field=step,
+        source=[BlogPostStep.STEP_1],
+        target=BlogPostStep.STEP_2,
+    )
+    def step_two(self):
+        pass
+
+    @transition(
+        field=step,
+        source=[BlogPostStep.STEP_2],
+        target=BlogPostStep.STEP_3,
+    )
+    def step_three(self):
+        pass
+
+    @transition(
+        field=step,
+        source=[
+            BlogPostStep.STEP_2,
+            BlogPostStep.STEP_3,
+        ],
+        target=BlogPostStep.STEP_1,
+    )
+    def step_reset(self):
         pass

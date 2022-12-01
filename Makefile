@@ -27,6 +27,9 @@ runserver:
 test:
 	$(do-in-tests) pytest --ds=settings
 
+shell:
+	$(do-in-tests) python manage.py shell
+
 pre-commit:
 	@pre-commit run --all-files
 
