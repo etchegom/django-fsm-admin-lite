@@ -2,10 +2,10 @@
 
 {% block submit_buttons_bottom %}
 
-  {% for object_transition in object_transitions %}
+  {% for fsm_object_transition in fsm_object_transitions %}
       <div class="submit-row">
-        <label>{{ object_transition.block_label }}</label>
-        {% for transition in object_transition.available_transitions %}
+        <label>{{ fsm_object_transition.block_label }}</label>
+        {% for transition in fsm_object_transition.available_transitions %}
           <input type="submit" value="{{ transition.name }}" name="_transition_to">
         {% endfor %}
       </div>

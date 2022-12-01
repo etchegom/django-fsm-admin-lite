@@ -12,7 +12,7 @@ from django_fsm import ConcurrentTransition, FSMField, Transition, TransitionNot
 
 
 @dataclass
-class ObjectTransitions:
+class FSMObjectTransition:
     fsm_field: str
     block_label: str
     available_transitions: list[Transition]
@@ -20,7 +20,12 @@ class ObjectTransitions:
 
 class FSMAdminMixin(BaseModelAdmin):
     change_form_template: str = "admin/fsm_admin_change_form.html"
+
     fsm_fields: list[str] = []
+    fsm_transition_success_msg: str = "FSM transition '{transition_name}' has been applied."
+    fsm_transition_error_msg: str = "FSM transition '{transition_name}' failure: {error}."
+    fsm_transition_not_allowed_msg = "FSM transition '{transition_name}' is not allowed."
+    fsm_transition_not_valid_msg = "FSM transition '{transition_name}' is not a valid."
 
     def get_fsm_field_instance(self, fsm_field_name: str) -> FSMField | None:
         try:
@@ -41,24 +46,26 @@ class FSMAdminMixin(BaseModelAdmin):
         return read_only_fields
 
     @staticmethod
-    def get_block_label(fsm_field_name: str) -> str:
+    def get_fsm_block_label(fsm_field_name: str) -> str:
         return f"Transition ({fsm_field_name})"
 
-    def get_object_transitions(self, request: HttpRequest, obj: Any) -> list[ObjectTransitions]:
-        object_transitions = []
+    def get_fsm_object_transitions(
+        self, request: HttpRequest, obj: Any
+    ) -> list[FSMObjectTransition]:
+        fsm_object_transitions = []
 
         for field_name in self.fsm_fields:
             func = getattr(obj, f"get_available_user_{field_name}_transitions")
             if func:
-                object_transitions.append(
-                    ObjectTransitions(
+                fsm_object_transitions.append(
+                    FSMObjectTransition(
                         fsm_field=field_name,
-                        block_label=self.get_block_label(fsm_field_name=field_name),
+                        block_label=self.get_fsm_block_label(fsm_field_name=field_name),
                         available_transitions=list(func(request.user)),
                     )
                 )
 
-        return object_transitions
+        return fsm_object_transitions
 
     def change_view(
         self,
@@ -69,7 +76,7 @@ class FSMAdminMixin(BaseModelAdmin):
     ) -> HttpResponse:
 
         _context = extra_context or {}
-        _context["object_transitions"] = self.get_object_transitions(
+        _context["fsm_object_transitions"] = self.get_fsm_object_transitions(
             request=request,
             obj=self.get_object(request=request, object_id=object_id),
         )
@@ -81,11 +88,11 @@ class FSMAdminMixin(BaseModelAdmin):
             extra_context=_context,
         )
 
-    def get_redirect_url(self, request: HttpRequest, obj: Any) -> str:
+    def get_fsm_redirect_url(self, request: HttpRequest, obj: Any) -> str:
         return request.path
 
-    def get_response(self, request: HttpRequest, obj: Any) -> HttpResponse:
-        redirect_url = self.get_redirect_url(request=request, obj=obj)
+    def get_fsm_response(self, request: HttpRequest, obj: Any) -> HttpResponse:
+        redirect_url = self.get_fsm_redirect_url(request=request, obj=obj)
         redirect_url = add_preserved_filters(
             context={
                 "preserved_filters": self.get_preserved_filters(request),
@@ -103,27 +110,45 @@ class FSMAdminMixin(BaseModelAdmin):
             except AttributeError:
                 self.message_user(
                     request=request,
-                    message=f"'{transition_name}' is not a valid transition",
+                    message=self.fsm_transition_not_valid_msg.format(
+                        transition_name=transition_name,
+                    ),
                     level=messages.ERROR,
                 )
-                return self.get_response(request=request, obj=obj)
+                return self.get_fsm_response(
+                    request=request,
+                    obj=obj,
+                )
 
             try:
                 transition_func()
-            except (TransitionNotAllowed, ConcurrentTransition) as err:
+            except TransitionNotAllowed:
                 self.message_user(
                     request=request,
-                    message=str(err),
+                    message=self.fsm_transition_not_allowed_msg.format(
+                        transition_name=transition_name,
+                    ),
+                    level=messages.ERROR,
+                )
+            except ConcurrentTransition as err:
+                self.message_user(
+                    request=request,
+                    message=self.fsm_transition_error_msg.format(
+                        transition_name=transition_name, error=str(err)
+                    ),
                     level=messages.ERROR,
                 )
             else:
                 obj.save()
                 self.message_user(
                     request=request,
-                    message=f"FSM field has been changed to '{obj.state}'",
+                    message=self.fsm_transition_success_msg.format(
+                        transition_name=transition_name,
+                    ),
+                    level=messages.INFO,
                 )
 
-            return self.get_response(
+            return self.get_fsm_response(
                 request=request,
                 obj=obj,
             )
