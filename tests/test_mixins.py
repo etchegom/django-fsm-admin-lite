@@ -114,7 +114,7 @@ class ResponseChangeTest(TestCase):
     def test_unknown_transition(self, mock_message_user):
         request = RequestFactory().post(
             path="/",
-            data={"_transition_to": "unkown_transition"},
+            data={"_fsm_transition_to": "unkown_transition"},
         )
 
         blog_post = BlogPost.objects.create(title="Article name")
@@ -137,7 +137,7 @@ class ResponseChangeTest(TestCase):
     def test_transition_applied(self, mock_message_user):
         request = RequestFactory().post(
             path="/",
-            data={"_transition_to": "moderate"},
+            data={"_fsm_transition_to": "moderate"},
         )
 
         blog_post = BlogPost.objects.create(title="Article name")
@@ -160,7 +160,7 @@ class ResponseChangeTest(TestCase):
     def test_transition_not_allowed_exception(self, mock_message_user):
         request = RequestFactory().post(
             path="/",
-            data={"_transition_to": "publish"},
+            data={"_fsm_transition_to": "publish"},
         )
 
         blog_post = BlogPost.objects.create(title="Article name")
@@ -183,7 +183,7 @@ class ResponseChangeTest(TestCase):
     def test_concurent_transition_exception(self, mock_message_user):
         request = RequestFactory().post(
             path="/",
-            data={"_transition_to": "moderate"},
+            data={"_fsm_transition_to": "moderate"},
         )
 
         blog_post = BlogPost.objects.create(title="Article name")

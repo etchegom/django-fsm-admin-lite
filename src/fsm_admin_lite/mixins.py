@@ -26,6 +26,8 @@ class FSMAdminMixin(BaseModelAdmin):
     fsm_transition_error_msg: str = "FSM transition '{transition_name}' failed: {error}."
     fsm_transition_not_allowed_msg = "FSM transition '{transition_name}' is not allowed."
     fsm_transition_not_valid_msg = "FSM transition '{transition_name}' is not a valid."
+    fsm_context_key = "fsm_object_transitions"
+    fsm_post_param = "_fsm_transition_to"
 
     def get_fsm_field_instance(self, fsm_field_name: str) -> FSMField | None:
         try:
@@ -76,7 +78,7 @@ class FSMAdminMixin(BaseModelAdmin):
     ) -> HttpResponse:
 
         _context = extra_context or {}
-        _context["fsm_object_transitions"] = self.get_fsm_object_transitions(
+        _context[self.fsm_context_key] = self.get_fsm_object_transitions(
             request=request,
             obj=self.get_object(request=request, object_id=object_id),
         )
@@ -103,9 +105,9 @@ class FSMAdminMixin(BaseModelAdmin):
         return HttpResponseRedirect(redirect_to=redirect_url)
 
     def response_change(self, request: HttpRequest, obj: Any) -> HttpResponse:
-        if "_transition_to" in request.POST:
+        if self.fsm_post_param in request.POST:
             try:
-                transition_name = request.POST["_transition_to"]
+                transition_name = request.POST[self.fsm_post_param]
                 transition_func = getattr(obj, transition_name)
             except AttributeError:
                 self.message_user(

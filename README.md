@@ -17,7 +17,7 @@ Limitations:
 
 ---
 
-## Installation (**WIP, not in pypi yet**)
+## Installation
 
 ```
 pip install django-fsm-admin-lite
@@ -43,6 +43,20 @@ class MyModelAdmin(FSMAdminMixin, admin.ModelAdmin):
         "state",
     ]
 ```
+
+---
+
+## Configuration
+
+| Admin class attribute             | Option                                              |
+|-----------------------------------|-----------------------------------------------------|
+| `fsm_fields`                      | List of FSM fields to handle                        |
+| `fsm_transition_success_msg`      | Admin message for transition success                |
+| `fsm_transition_error_msg`        | Admin message for transition error                  |
+| `fsm_transition_not_allowed_msg`  | Admin message for transition not allowed error      |
+| `fsm_transition_not_valid_msg`    | Admin message for transition not valid error        |
+| `fsm_context_key`                 | Template context key for FSM transitions            |
+| `fsm_post_param`                  | POST parameter name for FSM transitions             |
 
 ---
 
