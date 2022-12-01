@@ -145,7 +145,7 @@ class ResponseChangeTest(TestCase):
 
         mock_message_user.assert_called_once_with(
             request=request,
-            message="FSM transition 'moderate' has been applied.",
+            message="FSM transition 'moderate' succeeded.",
             level=messages.INFO,
         )
 
@@ -195,7 +195,7 @@ class ResponseChangeTest(TestCase):
 
         mock_message_user.assert_called_once_with(
             request=request,
-            message="FSM transition 'moderate' failure: error message.",
+            message="FSM transition 'moderate' failed: error message.",
             level=messages.ERROR,
         )
 

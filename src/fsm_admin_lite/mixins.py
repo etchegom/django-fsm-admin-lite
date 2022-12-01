@@ -22,8 +22,8 @@ class FSMAdminMixin(BaseModelAdmin):
     change_form_template: str = "admin/fsm_admin_change_form.html"
 
     fsm_fields: list[str] = []
-    fsm_transition_success_msg: str = "FSM transition '{transition_name}' has been applied."
-    fsm_transition_error_msg: str = "FSM transition '{transition_name}' failure: {error}."
+    fsm_transition_success_msg: str = "FSM transition '{transition_name}' succeeded."
+    fsm_transition_error_msg: str = "FSM transition '{transition_name}' failed: {error}."
     fsm_transition_not_allowed_msg = "FSM transition '{transition_name}' is not allowed."
     fsm_transition_not_valid_msg = "FSM transition '{transition_name}' is not a valid."
 
