@@ -7,9 +7,6 @@ version:
 
 do-in-tests = @cd tests && poetry run
 
-#
-# Dev
-#
 install:
 	@poetry install --no-interaction --no-root
 	@poetry run python setup.py develop
@@ -37,22 +34,3 @@ clean-db:
 	@rm -f tests/db.sqlite3
 
 example: clean-db install migrate create_super_user runserver
-
-#
-# Release
-#
-clean:
-	@rm -fr build/
-	@rm -fr dist/
-	@rm -fr *.egg-info
-	@find . -name '*.pyc' -exec rm -f {} +
-	@find . -name '*.pyo' -exec rm -f {} +
-	@find . -name '*~' -exec rm -f {} +
-
-dist: clean
-	@python setup.py -q sdist
-	@twine check dist/django-fsm-admin-lite-${VERSION}.tar.gz
-
-# release: dist
-# 	@twine upload -r testpypi dist/django-fsm-admin-lite-$(VERSION).tar.gz
-# 	@twine upload dist/django-fsm-admin-lite-$(VERSION).tar.gz
