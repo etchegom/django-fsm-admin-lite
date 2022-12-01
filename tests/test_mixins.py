@@ -5,7 +5,7 @@ from django.contrib import messages
 from django.contrib.admin.sites import AdminSite
 from django.test import TestCase
 from django.test.client import RequestFactory
-from django_fsm import FSMField
+from django_fsm import ConcurrentTransition, FSMField
 
 from testapp.admin import BlogPostAdmin
 from testapp.models import BlogPost, BlogPostState
@@ -153,7 +153,51 @@ class ResponseChangeTest(TestCase):
         assert updated_blog_post.state == BlogPostState.REVIEWED
 
     def test_transition_not_allowed_exception(self, mock_message_user):
-        pass
+        request = RequestFactory().post(
+            path="/",
+            data={"_transition_to": "publish"},
+        )
+
+        blog_post = BlogPost.objects.create(title="Article name")
+        assert blog_post.state == BlogPostState.CREATED
+
+        self.model_admin.response_change(
+            request=request,
+            obj=blog_post,
+        )
+
+        mock_message_user.assert_called_once_with(
+            request=request,
+            message="FSM transition 'publish' is not allowed.",
+            level=messages.ERROR,
+        )
+
+        updated_blog_post = BlogPost.objects.get(pk=blog_post.pk)
+        assert updated_blog_post.state == BlogPostState.CREATED
 
     def test_concurent_transition_exception(self, mock_message_user):
-        pass
+        request = RequestFactory().post(
+            path="/",
+            data={"_transition_to": "moderate"},
+        )
+
+        blog_post = BlogPost.objects.create(title="Article name")
+        assert blog_post.state == BlogPostState.CREATED
+
+        with patch(
+            "testapp.models.BlogPost.moderate",
+            side_effect=ConcurrentTransition("error message"),
+        ):
+            self.model_admin.response_change(
+                request=request,
+                obj=blog_post,
+            )
+
+        mock_message_user.assert_called_once_with(
+            request=request,
+            message="FSM transition 'moderate' failure: error message.",
+            level=messages.ERROR,
+        )
+
+        updated_blog_post = BlogPost.objects.get(pk=blog_post.pk)
+        assert updated_blog_post.state == BlogPostState.CREATED
