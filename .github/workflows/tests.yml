@@ -52,7 +52,7 @@ jobs:
           poetry install --no-interaction --no-root
           source .venv/bin/activate
           python -m pip install "Django~=${{ matrix.django-version }}"
-          python setup.py develop
+          poetry install --no-interaction --only-root
 
       - name: Run python tests
         run: |

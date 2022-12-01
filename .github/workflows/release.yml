@@ -26,9 +26,6 @@ jobs:
           virtualenvs-in-project: true
           installer-parallel: true
 
-      - name: Update PATH
-        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
-
       - name: Build project
         run: poetry build
 
