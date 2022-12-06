@@ -1,10 +1,3 @@
-.PHONY: clean
-
-VERSION := $(shell python setup.py --version)
-
-version:
-	@echo "$(VERSION)"
-
 do-in-tests = @cd tests && poetry run
 
 install:
